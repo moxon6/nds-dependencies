@@ -24,7 +24,7 @@ jobs:
           cp wasm3.o /workspace/release/lib
           cd /workspace/release
           echo "Bundling"
-          tar -czvf wasm3-nds.tar.gz *
+          tar -czvf /workspace/wasm3-nds.tar.gz *
 
     - name: Upload wasm3-nds
       uses: svenstaro/upload-release-action@v2
