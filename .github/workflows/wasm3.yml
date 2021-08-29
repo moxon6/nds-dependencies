@@ -3,26 +3,31 @@ on:
   workflow_dispatch:
 jobs:
   build:
-    runs-on: devkitpro/devkitarm:20210726
+    runs-on: ubuntu-latest
 
     steps:
     
-    - name: Build wasm3-nds
-      run: |
-        wget https://github.com/wasm3/wasm3/archive/refs/tags/v0.5.0.tar.gz
-        tar -xzvf v0.5.0.tar.gz
+    - uses: addnab/docker-run-action@v3
+      with:
+        image: devkitpro/devkitarm:20210726
+        options: -v ${{ github.workspace }}:/workspace
+        run: |
+          cd /workspace
+          
+          wget https://github.com/wasm3/wasm3/archive/refs/tags/v0.5.0.tar.gz
+          tar -xzvf v0.5.0.tar.gz
 
-        mkdir -p release/include release/lib
+          mkdir -p /workspace/release/include /workspace/release/lib
 
-        cd wasm3-0.5.0/source/
-        
-        /opt/devkitpro/devkitARM/bin/arm-none-eabi-gcc -c *.c
-        /opt/devkitpro/devkitARM/bin/arm-none-eabi-ld -r -o wasm3.o *.o
+          cd /workspace/wasm3-0.5.0/source/
+          
+          /opt/devkitpro/devkitARM/bin/arm-none-eabi-gcc -c *.c
+          /opt/devkitpro/devkitARM/bin/arm-none-eabi-ld -r -o wasm3.o *.o
 
-        find . -name '*.h' -exec cp --parents \{\} ../../release/include \;
-        cp wasm3.o ../../release/lib
-        cd ../../release
-        tar -czvf wasm3-nds.tar.gz *
+          find . -name '*.h' -exec cp --parents \{\} /workspace/release/include \;
+          cp wasm3.o /workspace/release/lib
+          cd /workspace/release
+          tar -czvf wasm3-nds.tar.gz *
 
     - name: Upload wasm3-nds
       uses: svenstaro/upload-release-action@v2
