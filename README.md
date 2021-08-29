@@ -1,2 +1,4 @@
 # nds-dependencies
-Repo for building dependendies for NDS apps
+Repo for building dependencies for NDS apps
+
+- wasm3-nds

@@ -1,0 +1,34 @@
+name: Build Wasm3 for use on nds
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: devkitpro/devkitarm:20210726
+
+    steps:
+    
+    - name: Build wasm3-nds
+      run: |
+        wget https://github.com/wasm3/wasm3/archive/refs/tags/v0.5.0.tar.gz
+        tar -xzvf v0.5.0.tar.gz
+
+        mkdir -p release/include release/lib
+
+        cd wasm3-0.5.0/source/
+        
+        /opt/devkitpro/devkitARM/bin/arm-none-eabi-gcc -c *.c
+        /opt/devkitpro/devkitARM/bin/arm-none-eabi-ld -r -o wasm3.o *.o
+
+        find . -name '*.h' -exec cp --parents \{\} ../../release/include \;
+        cp wasm3.o ../../release/lib
+        cd ../../release
+        tar -czvf wasm3-nds.tar.gz *
+
+    - name: Upload wasm3-nds
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: wasm3-nds.tar.gz
+        tag: 0.1
+        overwrite: true
+        body: "wasm3-nds"
