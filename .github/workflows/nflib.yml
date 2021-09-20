@@ -1,0 +1,32 @@
+name: Build NightFox's Lib for use on nds
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: addnab/docker-run-action@v3
+        with:
+          image: devkitpro/devkitarm:20210726
+          options: -v ${{ github.workspace }}:/workspace
+          run: |
+            apt-get install p7zip
+            cd /workspace 
+            wget -c https://netcologne.dl.sourceforge.net/project/nflib/nflib_20140413.7z -O nflib.7z
+            p7zip -d nflib.7z
+            cd nflib/nflib
+            make
+            cp -r include lib /workspace/release
+            cd /workspace/release
+            echo "Bundling"
+            tar -czvf /workspace/nflib-nds.tar.gz *
+
+      - name: Upload nflib-nds
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: nflib-nds.tar.gz
+          tag: 0.1
+          overwrite: true
+          body: "nflib-nds"
