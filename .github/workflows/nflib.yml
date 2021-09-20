@@ -11,10 +11,12 @@ jobs:
           image: devkitpro/devkitarm:20210726
           options: -v ${{ github.workspace }}:/workspace
           run: |
-            apt-get install p7zip
+            set -e
+            apt-get update && apt-get install p7zip
             cd /workspace 
             wget -c https://netcologne.dl.sourceforge.net/project/nflib/nflib_20140413.7z -O nflib.7z
             p7zip -d nflib.7z
+            mkdir -p /workspace/release
             cd nflib/nflib
             make
             cp -r include lib /workspace/release
