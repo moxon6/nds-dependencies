@@ -6,31 +6,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    
-    - uses: addnab/docker-run-action@v3
-      with:
-        image: devkitpro/devkitarm:20210726
-        options: -v ${{ github.workspace }}:/workspace
-        run: |
-          cd /workspace 
-          wget https://github.com/wasm3/wasm3/archive/refs/tags/v0.5.0.tar.gz
-          tar -xzvf v0.5.0.tar.gz
-          mkdir -p /workspace/release/include /workspace/release/lib
-          cd /workspace/wasm3-0.5.0/source/
-          echo "Compiling"
-          /opt/devkitpro/devkitARM/bin/arm-none-eabi-gcc -c *.c
-          /opt/devkitpro/devkitARM/bin/arm-none-eabi-ld -r -o wasm3.o *.o
-          find . -name '*.h' -exec cp --parents \{\} /workspace/release/include \;
-          cp wasm3.o /workspace/release/lib
-          cd /workspace/release
-          echo "Bundling"
-          tar -czvf /workspace/wasm3-nds.tar.gz *
+      - uses: addnab/docker-run-action@v3
+        with:
+          image: devkitpro/devkitarm:20210726
+          options: -v ${{ github.workspace }}:/workspace
+          run: |
+            cd /workspace 
+            wget https://github.com/wasm3/wasm3/archive/refs/tags/v0.5.0.tar.gz
+            tar -xzvf v0.5.0.tar.gz
+            mkdir -p /workspace/release/include /workspace/release/lib
+            cd /workspace/wasm3-0.5.0/source/
+            echo "Compiling"
+            /opt/devkitpro/devkitARM/bin/arm-none-eabi-gcc -c *.c
+            /opt/devkitpro/devkitARM/bin/arm-none-eabi-ld -r -o libwasm3.a *.o
+            find . -name '*.h' -exec cp --parents \{\} /workspace/release/include \;
+            cp libwasm3.a /workspace/release/lib
+            cd /workspace/release
+            echo "Bundling"
+            tar -czvf /workspace/wasm3-nds.tar.gz *
 
-    - name: Upload wasm3-nds
-      uses: svenstaro/upload-release-action@v2
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: wasm3-nds.tar.gz
-        tag: 0.1
-        overwrite: true
-        body: "wasm3-nds"
+      - name: Upload wasm3-nds
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: wasm3-nds.tar.gz
+          tag: 0.1
+          overwrite: true
+          body: "wasm3-nds"
